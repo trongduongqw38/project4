@@ -17,7 +17,13 @@ export const handler = middy(
         body: 'Unauthorized'
       }
     }
-
+	
+	if(!newTodo.name) {
+      return {
+        statusCode: 400,
+        body: 'Bad Request'
+      }
+    }
     const todo = await createTodo(newTodo, userId)
 
     return {

@@ -1,11 +1,16 @@
 import * as AWS from 'aws-sdk'
 import * as AWSXRay from 'aws-xray-sdk'
 import { createLogger } from '../utils/logger'
+import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 
 const XAWS = AWSXRay.captureAWS(AWS)
 const logger = createLogger('TodosAccess')
 
 export class AttachmentUtils {
+	constructor(
+      private dynamoDBClient: DocumentClient = new AWS.DynamoDB.DocumentClient(),
+      private todo_table = process.env.TODOS_TABLE
+    ) {}
 
   async createAttachmentPresignedUrl(todoId: string) {
     logger.info('createAttachmentPresignedUrl: ', todoId)
@@ -18,6 +23,26 @@ export class AttachmentUtils {
     } catch (error) {
       logger.error('Error createAttachmentPresignedUrl: ' + error)
     }
+  }
+  
+  async updateAttachmentUrl(
+    todoId: string,
+    attachmentUrl: string,
+    userId: string
+  ) {
+    await this.dynamoDBClient
+      .update({
+        TableName: this.todo_table,
+        Key: {
+          todoId: todoId,
+          userId: userId
+        },
+        UpdateExpression: 'set attachmentUrl = :attachmentUrl',
+        ExpressionAttributeValues: {
+          ':attachmentUrl': attachmentUrl
+        }
+      })
+      .promise()
   }
   
 }
