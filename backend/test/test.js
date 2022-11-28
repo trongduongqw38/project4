@@ -7,7 +7,7 @@ var token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlMycWFFbk5oZlZ2ZDVKdEN
 
 chai.use(chaiHttp);
 //Our parent block
-describe('TodosAccess', () => {
+describe('GET Todo', () => {
     beforeEach((done) => {
         //Before each test we empty the database in your case
         done();
@@ -74,6 +74,26 @@ describe('/GET attachment url/:id/attachment', () => {
                     res.should.have.status(201);
 					res.body.should.be.a('object');
 					res.body.should.have.property('uploadUrl').that.is.an('string');
+                    done();
+                });
+        });
+    });
+	
+describe('/UPDATE/:id Todo', () => {
+        it('it should UPDATE a todo', (done) => {
+			let id = '09a46cc0-daaa-44d1-98d2-60636a111c2d'
+            let todo = {
+                name: "Duong",
+                dueDate: "2019-06-11",
+				done: true
+            };
+            chai.request(host)
+                .patch('/todos/' + id)
+				.set("Authorization", "Bearer " + token)
+                .send(todo)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
                     done();
                 });
         });
